@@ -14,6 +14,7 @@ export const SETTINGS = {
   cities: 'Mumbai · Madurai',
   instagram: '',
   facebook: '',
+  logo: 'assets/img/brand/logo.png',
 
   heroEyebrow: 'Est. 1991 · Granite Atelier',
   heroLine1: 'Quarried with care.',
@@ -47,7 +48,7 @@ export const SETTINGS = {
     'We are a family of innovators, led by Mr. Chaudhary’s vision. Our journey is marked by dedication, excellence, and a passion for perfection.',
   aboutCraft:
     'We create high-quality granite that exceeds expectations. Our advanced processing ensures each piece is crafted with precision and care.',
-  aboutImage: img('stone-5'),
+  aboutImage: img('factory/factory'),
 
   factorySpecs: [
     { label: 'Monthly capacity', value: '180,000 sq.ft' },
@@ -57,99 +58,89 @@ export const SETTINGS = {
   ],
 
   colors: ['White & Ivory', 'Gold & Beige', 'Pink & Red', 'Black & Grey', 'Brown'],
-  finishes: ['Polished', 'Honed', 'Leathered', 'Flamed'],
+  finishes: ['Polished', 'Leather', 'Honed', 'Flamed'],
   applications: ['Countertops', 'Flooring', 'Wall Cladding', 'Staircase', 'Exterior'],
-  galleryCategories: ['Countertops', 'Stair & Cladding', 'Flooring', 'Exterior', 'Commercial'],
+  galleryCategories: ['Countertops', 'Flooring', 'Stair & Cladding', 'Exterior', 'Factory'],
   projectTypes: ['Residential', 'Commercial', 'Hospitality', 'Export / Trade', 'Other'],
 };
 
-const P = (name, color, finish, application, image, extra = {}) => ({
+// Product photos live in assets/img/products/. Name and finish come from the
+// photo titles supplied by Dhanraj Granite ("Ivory Fantasy: Polished").
+// Thickness, density and application are left blank to be filled in from the
+// admin panel with the real specifications.
+const P = (name, finish, color, image, extra = {}) => ({
   name,
-  color,
   finish,
-  application,
-  thickness: '18mm',
-  density: '2.79 g/cm³',
+  color,
+  application: '',
   origin: 'India',
+  thickness: '',
+  density: '',
   description: '',
-  image: img(image),
+  image: img(`products/${image}`),
+  photos: [],
   featured: false,
   ...extra,
 });
 
 export const COLLECTIONS = {
   products: [
-    P('Ivory Fantasy', 'White & Ivory', 'Polished', 'Countertops', 'ivory-fantasy', {
+    P('Ivory Fantasy', 'Polished', 'White & Ivory', 'ivory-fantasy-polished', { featured: true }),
+    P('Ivory Fantasy', 'Leather', 'White & Ivory', 'ivory-fantasy-leather'),
+    P('Kashmiri White', 'Polished', 'White & Ivory', 'kashmiri-white-polished', {
       featured: true,
-      description: 'Soft ivory ground with flowing taupe and rose movement. A warm, versatile classic for kitchens and vanities.',
+      photos: [img('products/kashmiri-white-polished-2')],
     }),
-    P('Kashmiri White', 'White & Ivory', 'Leathered', 'Countertops', 'kashmiri-white', {
-      featured: true,
-      description: 'Bright white base scattered with garnet and charcoal crystals. Clean, airy and timeless.',
+    P('Kashmiri White', 'Leather', 'White & Ivory', 'kashmiri-white-leather'),
+    P('Colonial White', 'Polished', 'White & Ivory', 'colonial-white-polished'),
+    P('Royal White', 'Polished', 'White & Ivory', 'royal-white-polished'),
+    P('Russian White', 'Polished', 'White & Ivory', 'russian-white-polished'),
+    P('Millenium Creame', 'Polished', 'Gold & Beige', 'millenium-creame-polished'),
+    P('Bhama Gold', 'Polished', 'Gold & Beige', 'bhama-gold-polished', { featured: true }),
+    P('Ocean Gold', 'Polished', 'Gold & Beige', 'ocean-gold-polished'),
+    P('Sivakasi Gold', 'Polished', 'Gold & Beige', 'sivakasi-gold-polished', {
+      photos: [img('products/sivakasi-gold-polished-2')],
     }),
-    P('Colonial White', 'White & Ivory', 'Polished', 'Countertops', 'colonial-white', {
-      featured: true,
-      description: 'Pearl-grey whites with gentle veining — understated elegance for large surfaces.',
-    }),
-    P('Royal White', 'White & Ivory', 'Polished', 'Flooring', 'royal-white', {
-      featured: true,
-      description: 'A quiet, even-toned white with fine grain. Ideal for expansive floors.',
-    }),
-    P('Colombo Juparana', 'Gold & Beige', 'Polished', 'Countertops', 'colombo-juparana', {
-      description: 'Dramatic waves of caramel, cream and smoke. Every slab is one of a kind.',
-    }),
-    P('Bhama Gold', 'Gold & Beige', 'Polished', 'Countertops', 'bhama-gold', {
-      description: 'Sun-warmed gold with dense crystal pattern — rich and inviting.',
-    }),
-    P('Ocean Gold', 'Gold & Beige', 'Polished', 'Countertops', 'ocean-gold'),
-    P('Millennium Cream', 'Gold & Beige', 'Polished', 'Countertops', 'millennium-cream'),
-    P('Jiblee Pink', 'Pink & Red', 'Polished', 'Countertops', 'jiblee-pink'),
-    P('Royal Pink', 'Pink & Red', 'Polished', 'Flooring', 'royal-pink'),
-    P('Rawsilk Pink', 'Pink & Red', 'Polished', 'Flooring', 'rawsilk-pink'),
-    P('Russian White', 'White & Ivory', 'Polished', 'Wall Cladding', 'russian-white'),
-    P('Absolute Black', 'Black & Grey', 'Polished', 'Countertops', 'absolute-black', {
-      thickness: '20mm',
-      density: '2.95 g/cm³',
-      description: 'Deep, uniform black that takes a mirror polish. The architect’s favourite.',
-    }),
-    P('Black Galaxy', 'Black & Grey', 'Polished', 'Countertops', 'black-galaxy', {
-      thickness: '20mm',
-      density: '2.90 g/cm³',
-      description: 'Jet black flecked with golden bronzite — like a night sky in stone.',
-    }),
-    P('Steel Grey', 'Black & Grey', 'Leathered', 'Exterior', 'steel-grey'),
-    P('Tan Brown', 'Brown', 'Polished', 'Staircase', 'tan-brown'),
+    P('Tiger Skin', 'Polished', 'Gold & Beige', 'tiger-skin-polished'),
+    P('Colombo Jubrana', 'Polished', 'Pink & Red', 'colombo-jubrana-polished', { featured: true }),
+    P('Jiblee Pink', 'Polished', 'Pink & Red', 'jiblee-pink-polished'),
+    P('Rawsilk Pink', 'Polished', 'Pink & Red', 'rawsilk-pink-polished'),
+    P('Royal Pink', 'Polished', 'Pink & Red', 'royal-pink-polished'),
+    P('Satur Pink', 'Polished', 'Pink & Red', 'satur-pink-polished'),
+    P('Strawberry Pink', 'Polished', 'Pink & Red', 'strawberry-pink-polished'),
   ],
 
   capabilities: [
-    { step: '01', title: 'Ethical Quarrying', image: img('stone-5'),
-      description: 'Hand-selected blocks extracted from certified quarries across India with full traceability.' },
-    { step: '02', title: 'MonoWiresaw & Multi-Blade Cutter', image: img('stone-6'),
-      description: 'Precision block dressing on a MonoWiresaw followed by multi-blade cutting at 17mm to 100mm — zero kerf-waste, consistent thickness.' },
-    { step: '03', title: 'Resin & Polishing', image: img('stone-2'),
-      description: 'Vacuum resin reinforcement and 16-head line polishing for a deep, durable, mirror-like finish.' },
-    { step: '04', title: 'CNC Edge Profiling', image: img('stone-3'),
-      description: '5-axis CNC and waterjet systems carve bullnose, ogee, mitre and chamfer edges to architectural tolerance.' },
-    { step: '05', title: 'Spectro QC Inspection', image: img('stone-4'),
-      description: 'Every slab is checked under calibrated light for tone, flatness and finish before it leaves the factory.' },
+    { step: '01', title: 'Ethical Quarrying', image: img('capabilities/quarry'),
+      description: 'Hand-selected blocks extracted from quarries across India, chosen for colour, consistency and soundness.' },
+    { step: '02', title: 'MonoWiresaw & Multi-Blade Cutter', image: img('capabilities/multi-blade-cutter'),
+      description: 'Precision block dressing followed by multi-blade cutting at 17mm to 100mm — minimal waste, consistent thickness.' },
+    { step: '03', title: 'Resin & Line Polishing', image: img('capabilities/line-polishing-machine'),
+      description: 'Resin reinforcement and multi-head line polishing (LPM) for a deep, durable, mirror-like finish.' },
+    { step: '04', title: 'CNC Edge Profiling', image: img('capabilities/cnc-machine'),
+      description: 'CNC bridge cutting carves bullnose, ogee, mitre and chamfer edges and cut-outs to architectural tolerance.' },
+    { step: '05', title: 'Quality Inspection', image: img('capabilities/inspection'),
+      description: 'Every slab is measured for thickness and checked for tone, flatness and finish before it leaves the factory.' },
   ],
 
   gallery: [
-    { title: 'Illuminated Granite Staircase', category: 'Stair & Cladding', image: img('stone-1') },
-    { title: 'Warm Gold Kitchen Island', category: 'Countertops', image: img('stone-2') },
-    { title: 'Classic White Kitchen', category: 'Countertops', image: img('stone-3') },
-    { title: 'Black Granite Island', category: 'Countertops', image: img('stone-4') },
-    { title: 'Ivory Granite Alcove', category: 'Stair & Cladding', image: img('stone-5') },
-    { title: 'Courtyard Paving', category: 'Exterior', image: img('stone-6') },
-    { title: 'Hotel Lobby Floor', category: 'Commercial', image: img('stone-7') },
-    { title: 'Living Room Flooring', category: 'Flooring', image: img('stone-8') },
+    { title: 'Gold Granite Kitchen Island', category: 'Countertops', image: img('gallery/gold-granite-countertop') },
+    { title: 'Stair & Wall Cladding', category: 'Stair & Cladding', image: img('gallery/stair-and-wall-cladding') },
+    { title: 'White Granite Flooring', category: 'Flooring', image: img('gallery/white-granite-flooring') },
+    { title: 'Ivory Granite Kitchen', category: 'Countertops', image: img('gallery/ivory-granite-countertop') },
+    { title: 'Granite Parking Floor', category: 'Exterior', image: img('gallery/parking-granite') },
+    { title: 'Black Granite Countertop', category: 'Countertops', image: img('gallery/black-granite-countertop') },
+    { title: 'Anti-Skid Granite Walkway', category: 'Exterior', image: img('gallery/anti-skid-walkway') },
+    { title: 'White Granite Countertop', category: 'Countertops', image: img('gallery/white-granite-countertop') },
+    { title: 'Our Factory, Madurai', category: 'Factory', image: img('factory/factory') },
+    { title: 'Dhanraj Stones Emporium — Entrance', category: 'Factory', image: img('factory/factory-entrance') },
   ],
 
   milestones: [
     { year: '1991', title: 'Founded as Chaudhary Granite', description: 'Mr. Naresh Chaudhary begins trading premium stone in Rajasthan.', image: '' },
     { year: '1997', title: 'Expansion to Mumbai', description: 'Dhanraj Granite is established as a premier trading hub in Mumbai.', image: '' },
     { year: '2008', title: 'TMT Pvt. Ltd. — Global Reach', description: 'Our export arm takes Dhanraj Granite to the world.', image: '' },
-    { year: '2011', title: 'Madurai Manufacturing', description: 'Universal Stone India P. Ltd. opens a state-of-the-art processing facility in Tamil Nadu.', image: img('stone-6') },
+    { year: '2011', title: 'Madurai Manufacturing', description: 'Universal Stone India P. Ltd. opens a state-of-the-art processing facility in Tamil Nadu.', image: img('factory/factory-entrance') },
   ],
 
   testimonials: [

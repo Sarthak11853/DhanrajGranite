@@ -26,7 +26,8 @@ const SCHEMAS = {
       { k: 'thickness', label: 'Thickness', ph: '18mm' },
       { k: 'density', label: 'Density', ph: '2.79 g/cm³' },
       { k: 'description', label: 'Short description', type: 'textarea', full: true, ph: 'Optional — a line or two about the stone.' },
-      { k: 'image', label: 'Photo', type: 'image', req: true, full: true },
+      { k: 'image', label: 'Main photo', type: 'image', req: true, full: true, hint: 'This photo appears on the product card.' },
+      { k: 'photos', label: 'Extra photos (optional)', type: 'images', full: true, hint: 'Other angles or close-ups. Customers can flip through them and zoom in.' },
       { k: 'featured', label: 'Show in the homepage collection', type: 'toggle', full: true },
     ],
     defaults: () => ({ origin: 'India', thickness: '18mm', density: '2.79 g/cm³', finish: 'Polished' }),
@@ -108,6 +109,7 @@ const SETTINGS_GROUPS = [
     { k: 'cities', label: 'Cities line', ph: 'Mumbai · Madurai' },
     { k: 'instagram', label: 'Instagram link', type: 'url' },
     { k: 'facebook', label: 'Facebook link', type: 'url' },
+    { k: 'logo', label: 'Logo', type: 'image', full: true, hint: 'Shown in the header and footer. A PNG with a transparent background looks best. Remove it to show a typed “DG Dhanraj Granite” logo instead.' },
   ] },
   { id: 'home', title: 'Homepage', note: 'The first thing customers see.', fields: [
     { k: 'heroEyebrow', label: 'Small heading above title', full: true },
@@ -173,7 +175,7 @@ function renderLogin(msg = '') {
   <div class="login">
     <a class="login__back" href="index.html">${icon.left} Back to site</a>
     <div class="login__box">
-      <span class="logo__mark">DG</span>
+      <img class="ad-mono" src="assets/img/brand/monogram.png" alt="DG">
       <h1>${esc(S.brand)}</h1>
       <small>Admin portal</small>
       <form class="login__card" id="loginForm" novalidate>
@@ -223,7 +225,7 @@ function renderRecovery() {
   closeDrawer(true);
   root.innerHTML = `
   <div class="login"><div class="login__box">
-    <span class="logo__mark">DG</span><h1>Set a new password</h1><small>Admin portal</small>
+    <img class="ad-mono" src="assets/img/brand/monogram.png" alt="DG"><h1>Set a new password</h1><small>Admin portal</small>
     <form class="login__card" id="recForm">
       <div class="field"><label for="rc1">New password</label><input id="rc1" type="password" minlength="8" autocomplete="new-password" required></div>
       <div class="field"><label for="rc2">Confirm password</label><input id="rc2" type="password" minlength="8" autocomplete="new-password" required></div>
@@ -253,7 +255,7 @@ async function renderShell() {
   root.innerHTML = `
   <header class="ad-top">
     <div class="container ad-top__in">
-      <div class="ad-brand"><span class="logo__mark">DG</span><div><small>Internal</small><b>Admin Dashboard</b></div></div>
+      <div class="ad-brand"><img class="ad-mono" src="assets/img/brand/monogram.png" alt="DG"><div><small>Internal</small><b>Admin Dashboard</b></div></div>
       <span class="mode ${live ? 'mode--live' : ''} hide-sm" title="${live ? 'Connected to Supabase — changes are live for every visitor.' : 'Demo mode — changes are saved in this browser only.'}"><i></i>${live ? 'Live' : 'Demo mode'}</span>
       <a class="top-link" href="index.html" target="_blank" rel="noopener">${icon.ext}<span class="hide-sm">View site</span></a>
       <button class="top-link" id="signOut">${icon.logout}<span class="hide-sm">Sign out</span></button>
@@ -442,6 +444,17 @@ function fieldHtml(f, v, prefix = 'f') {
           </div>
         </div>${hint}</div>`;
     }
+    case 'images': {
+      const urls = Array.isArray(val) ? val : [];
+      return `<div class="${cls}">${label}
+        <div class="multi" data-imgs="${f.k}">
+          <div class="multi__grid">
+            ${urls.map((u) => multiThumb(u)).join('')}
+            <label class="multi__add" title="Add photos"><input type="file" accept="image/*" multiple aria-label="Add photos">${icon.plus}<span>Add</span></label>
+          </div>
+          <input class="input" type="url" data-multiurl placeholder="…or paste an image link and press Enter" aria-label="Add image link">
+        </div>${hint}</div>`;
+    }
     case 'pairs': {
       const rows = Array.isArray(val) ? val : [];
       return `<div class="${cls}">${label}
@@ -455,6 +468,14 @@ function fieldHtml(f, v, prefix = 'f') {
     default:
       return `<div class="${cls}">${label}<input id="${id}" name="${f.k}" type="${f.type || 'text'}" value="${esc(val)}" ${req} ${ph} ${f.type === 'tel' ? 'inputmode="tel"' : ''}>${hint}</div>`;
   }
+}
+
+function multiThumb(u) {
+  return `<div class="multi__item" data-url="${esc(u)}">
+    <img src="${esc(safeUrl(u))}" alt="" loading="lazy">
+    <button type="button" class="multi__btn multi__btn--l" data-mleft aria-label="Move left">${icon.left}</button>
+    <button type="button" class="multi__btn multi__btn--x" data-mdel aria-label="Remove photo">${icon.close}</button>
+  </div>`;
 }
 
 function pairRow(f, r = {}) {
@@ -477,6 +498,7 @@ function readFields(form, fields) {
       out[f.k] = $$('.pair', box).map((p) => ({ [f.a]: $('[data-pa]', p).value.trim(), [f.b]: $('[data-pb]', p).value.trim() }))
         .filter((r) => r[f.a] || r[f.b]);
     } else if (f.type === 'image') out[f.k] = $(`[data-img="${f.k}"] input[type=hidden]`, form).value.trim();
+    else if (f.type === 'images') out[f.k] = $$(`[data-imgs="${f.k}"] .multi__item`, form).map((el) => el.dataset.url);
     else out[f.k] = form.elements[f.k].value.trim();
   }
   return out;
@@ -541,6 +563,35 @@ function bindFormWidgets(form, folder, onChange) {
     ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, () => drop.classList.remove('is-over')));
     drop.addEventListener('drop', (e) => { e.preventDefault(); upload(box, e.dataTransfer.files[0]); });
   });
+  $$('[data-imgs]', form).forEach((box) => {
+    const grid = $('.multi__grid', box);
+    const addTile = $('.multi__add', box);
+    const addUrl = (u) => { if (u) { addTile.insertAdjacentHTML('beforebegin', multiThumb(u)); onChange?.(); } };
+    $('input[type=file]', box).addEventListener('change', async (e) => {
+      const files = [...e.target.files];
+      e.target.value = '';
+      for (const file of files) {
+        addTile.insertAdjacentHTML('beforebegin', '<div class="multi__item multi__item--busy"><span></span></div>');
+        const ph = $('.multi__item--busy', grid);
+        try { ph.outerHTML = multiThumb(await store.uploadImage(file, 'products')); onChange?.(); } catch (ex) { ph.replaceWith(); toast(ex.message, 'err'); }
+      }
+    });
+    $('[data-multiurl]', box).addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const u = e.target.value.trim();
+      if (!/^https?:\/\//i.test(u)) { toast('Please paste a full link starting with https://', 'err'); return; }
+      addUrl(u);
+      e.target.value = '';
+    });
+    box.addEventListener('click', (e) => {
+      const item = e.target.closest('.multi__item');
+      if (!item) return;
+      if (e.target.closest('[data-mdel]')) { item.replaceWith(); onChange?.(); }
+      if (e.target.closest('[data-mleft]') && item.previousElementSibling) { item.previousElementSibling.before(item); onChange?.(); }
+    });
+  });
+
   form.addEventListener('click', (e) => {
     const add = e.target.closest('[data-addpair]');
     if (add) {

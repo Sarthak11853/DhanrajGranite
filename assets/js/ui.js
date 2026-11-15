@@ -101,8 +101,10 @@ export function lockScroll(on) {
   }
 }
 
-export const logo = (cls = '') => `
-  <span class="logo ${cls}">
+/** Brand logo: the uploaded logo image if set, otherwise a typeset fallback. */
+export const logo = (cls = '', src = '', name = 'Dhanraj Granite') => (safeUrl(src)
+  ? `<span class="logo ${cls}"><img class="logo__img" src="${esc(safeUrl(src))}" alt="${esc(name)}"></span>`
+  : `<span class="logo ${cls}">
     <span class="logo__mark">DG</span>
     <span class="logo__word"><b>DHANRAJ</b><i>GRANITE</i></span>
-  </span>`;
+  </span>`);

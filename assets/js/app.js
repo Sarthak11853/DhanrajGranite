@@ -89,19 +89,24 @@ function productMsg(p) {
   return `Hello ${D.settings.brand}, I'm interested in ${p.name}${p.finish ? ` (${p.finish}${p.thickness ? `, ${p.thickness}` : ''})` : ''}. Could you share price and availability?`;
 }
 
-const pKey = (p) => slug(p.name) || p.id;
+// The same stone can be sold in several finishes, so name + finish identifies a product.
+const pKey = (p) => slug([p.name, p.finish].filter(Boolean).join(' ')) || p.id;
+const pLabel = (p) => (p.finish ? `${p.name} (${p.finish})` : p.name);
+const pPhotos = (p) => [p.image, ...(Array.isArray(p.photos) ? p.photos : [])].filter(Boolean);
 
 function productCard(p, i = 0) {
+  const more = pPhotos(p).length - 1;
   return `
   <article class="card" style="animation-delay:${Math.min(i, 12) * 0.05}s">
-    <a href="${hrefWith({ p: pKey(p) })}" class="card__media" aria-label="View ${esc(p.name)}">
-      ${img(p.image, p.name)}
+    <a href="${hrefWith({ p: pKey(p) })}" class="card__media" aria-label="View ${esc(pLabel(p))}">
+      ${img(p.image, pLabel(p))}
       ${p.finish ? `<span class="card__tag">${esc(p.finish)}</span>` : ''}
+      ${more > 0 ? `<span class="card__count">+${more} photo${more > 1 ? 's' : ''}</span>` : ''}
       <span class="card__peek">${icon.arrow}</span>
     </a>
     <div class="card__body">
       <h3 class="card__title"><a href="${hrefWith({ p: pKey(p) })}">${esc(p.name)}</a></h3>
-      <div class="card__meta">${esc([p.origin, p.application].filter(Boolean).join(' · '))}</div>
+      <div class="card__meta">${esc([p.application || p.color, p.origin].filter(Boolean).join(' · '))}</div>
       <div class="card__actions">
         <a class="specs" href="${hrefWith({ p: pKey(p) })}">View specs</a>
         <a class="pill-wa" href="${waLink(D.settings.whatsapp, productMsg(p))}" target="_blank" rel="noopener" aria-label="Enquire about ${esc(p.name)} on WhatsApp">${icon.whatsapp}<span>Enquire</span></a>
@@ -381,13 +386,21 @@ const modal = {
 function syncProductModal(params) {
   const key = params.get('p');
   if (!key) { modal.hide(); return; }
-  const p = D.products.find((x) => pKey(x) === key || x.id === key);
+  const p = D.products.find((x) => pKey(x) === key || x.id === key || slug(x.name) === key);
   if (!p) { modal.hide(); return; }
   const rows = [['Origin', p.origin], ['Finish', p.finish], ['Thickness', p.thickness], ['Application', p.application], ['Density', p.density], ['Colour', p.color]]
     .filter(([, v]) => v);
+  const photos = pPhotos(p);
   modal.show(`
     <div class="qv">
-      <div class="qv__media">${img(p.image, p.name)}</div>
+      <div class="qv__media">
+        <button class="qv__main" data-zoom="0" aria-label="View ${esc(pLabel(p))} full screen">
+          ${img(p.image, pLabel(p))}
+          <span class="qv__zoom">${icon.search} Tap to zoom</span>
+        </button>
+        ${photos.length > 1 ? `<div class="qv__thumbs">${photos.map((u, i) => `
+          <button class="${i === 0 ? 'is-on' : ''}" data-photo="${i}" aria-label="Photo ${i + 1}">${img(u, '')}</button>`).join('')}</div>` : ''}
+      </div>
       <div class="qv__body">
         <span class="eyebrow">${esc(p.application || p.color || 'Granite')}</span>
         <h2 id="modalTitle">${esc(p.name)}</h2>
@@ -395,10 +408,24 @@ function syncProductModal(params) {
         <dl class="specs-grid">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
         <div class="qv__actions">
           <a class="btn btn--wa" href="${waLink(D.settings.whatsapp, productMsg(p))}" target="_blank" rel="noopener">${icon.whatsapp} WhatsApp</a>
-          <a class="btn" href="#/contact?product=${encodeURIComponent(p.name)}">Request quote</a>
+          <a class="btn" href="#/contact?product=${encodeURIComponent(pLabel(p))}">Request quote</a>
         </div>
       </div>
-    </div>`, p.name);
+    </div>`, pLabel(p));
+  modal.product = p;
+}
+
+function showPhoto(i) {
+  const p = modal.product;
+  if (!p) return;
+  const photos = pPhotos(p);
+  const main = $('.qv__main');
+  const im = $('img', main);
+  im.classList.remove('loaded');
+  im.src = safeUrl(photos[i]);
+  if (im.complete) im.classList.add('loaded'); else im.onload = () => im.classList.add('loaded');
+  main.dataset.zoom = i;
+  $$('[data-photo]').forEach((b) => b.classList.toggle('is-on', Number(b.dataset.photo) === i));
 }
 
 function closeProductModal() {
@@ -413,7 +440,7 @@ function closeProductModal() {
 function pageCapabilities(d) {
   const s = d.settings;
   return `
-  ${pageHeadHtml('Capabilities', 'The journey from <em style="display:inline;color:var(--gold)">rock</em> to room.', 'Precise stages — monowire block dressing, multi-blade cutting, resin reinforcement, CNC profiling, and spectrophotometer QC — handled under one roof.')}
+  ${pageHeadHtml('Capabilities', 'The journey from <em style="display:inline;color:var(--gold)">rock</em> to room.', 'Precise stages — monowire block dressing, multi-blade cutting, resin reinforcement, CNC profiling, and quality inspection — handled under one roof.')}
   <section class="section">
     <div class="container steps">
       ${d.capabilities.map((c, i) => `
@@ -552,7 +579,7 @@ function pageContact(d, params) {
   const s = d.settings;
   const pre = params.get('product') || '';
   const opt = (list, sel = '') => list.map((v) => `<option ${v === sel ? 'selected' : ''}>${esc(v)}</option>`).join('');
-  const products = d.products.map((p) => p.name);
+  const products = [...new Set(d.products.map(pLabel))];
   if (pre && !products.includes(pre)) products.unshift(pre);
   return `
   ${pageHead('Contact', 'Request a', 'quote.', 'Share your project details and we’ll return a precise quote with available slabs within 24 hours.')}
@@ -652,7 +679,7 @@ async function submitQuote(form) {
 
 function renderChrome() {
   const s = D.settings;
-  $('#brand').innerHTML = logo();
+  $('#brand').innerHTML = logo('', s.logo, s.brand);
   $('#nav').innerHTML = NAV.map(([p, l]) => `<a href="#/${p}" data-path="${p}">${l}</a>`).join('');
   $('#mobileNav').innerHTML = NAV.map(([p, l], i) => `<a href="#/${p}" data-path="${p}" style="transition-delay:${0.15 + i * 0.04}s">${l}</a>`).join('');
   $('#mobileFoot').innerHTML = `
@@ -671,7 +698,7 @@ function renderChrome() {
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          ${logo('logo--lg')}
+          ${logo('logo--lg', s.logo, s.brand)}
           <p>${esc(s.footerText)}</p>
           ${s.instagram || s.facebook ? `<div class="socials">
             ${s.instagram ? `<a href="${esc(safeUrl(s.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${icon.instagram}</a>` : ''}
@@ -963,6 +990,14 @@ function bindGlobal() {
         enhance(grid, { soft: true });
         grid.style.opacity = '';
       }, 250);
+    }
+
+    const thumb = e.target.closest('[data-photo]');
+    if (thumb) showPhoto(Number(thumb.dataset.photo));
+    const zoom = e.target.closest('[data-zoom]');
+    if (zoom && modal.product) {
+      const p = modal.product;
+      lb.show(pPhotos(p).map((u) => ({ image: u, title: p.name, category: p.finish })), Number(zoom.dataset.zoom));
     }
 
     const tile = e.target.closest('[data-lb]');

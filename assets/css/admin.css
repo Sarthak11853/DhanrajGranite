@@ -2,7 +2,10 @@
 
 body.admin { background: var(--paper); min-height: 100vh; }
 .ad-boot { min-height: 100vh; display: grid; place-items: center; background: var(--navy); }
-.ad-boot .logo__mark { font-size: 56px; animation: pulse 1.6s ease-in-out infinite; }
+.ad-mono { display: block; height: 34px; width: auto; }
+.ad-boot .ad-mono { height: 64px; animation: pulse 1.6s ease-in-out infinite; }
+.login__box .ad-mono { height: 60px; margin: 0 auto; }
+@media (max-width: 720px) { .ad-brand .ad-mono { height: 28px; } }
 @keyframes pulse { 50% { opacity: 0.4; } }
 
 /* ---------------------------------------------------------------- login */
@@ -168,6 +171,23 @@ body.admin { background: var(--paper); min-height: 100vh; }
 .imgfield__row { display: flex; gap: 8px; }
 .imgfield__row input { flex: 1; min-height: 42px !important; font-size: 14px !important; }
 .imgfield__row .btn { min-height: 42px; }
+
+.multi { display: grid; gap: 10px; }
+.multi__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.multi__item, .multi__add { position: relative; aspect-ratio: 1; background: var(--stone); overflow: hidden; }
+.multi__item img { width: 100%; height: 100%; object-fit: cover; }
+.multi__item--busy { display: grid; place-items: center; }
+.multi__item--busy span { width: 22px; height: 22px; border: 2px solid var(--gold); border-right-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+.multi__btn { position: absolute; top: 4px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: rgba(15, 23, 43, 0.75); color: #fff; }
+.multi__btn svg { width: 14px; height: 14px; }
+.multi__btn--l { left: 4px; }
+.multi__btn--x { right: 4px; }
+.multi__btn--x:hover { background: #b8382a; }
+.multi__item:first-child .multi__btn--l { display: none; }
+.multi__add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1.5px dashed #cfc8b9; background: #fff; color: var(--muted); font: 500 10px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
+.multi__add:hover { border-color: var(--gold); color: var(--ink); }
+.multi__add input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.multi input[data-multiurl] { min-height: 42px; font-size: 14px; }
 
 /* settings */
 .set-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }

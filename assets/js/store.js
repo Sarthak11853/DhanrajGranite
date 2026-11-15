@@ -12,9 +12,9 @@ import { SETTINGS as SEED_SETTINGS, COLLECTIONS as SEED } from './seed.js';
 export const COLLECTIONS = Object.keys(SEED);
 export const DEFAULT_SETTINGS = SEED_SETTINGS;
 
-const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
-const LS_DATA = 'dg:data:v1';
-const LS_CACHE = 'dg:cache:v1';
+const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/+esm';
+const LS_DATA = 'dg:data:v2';
+const LS_CACHE = 'dg:cache:v2';
 const LS_PW = 'dg:demo-pw';
 const SS_AUTH = 'dg:demo-auth';
 export const DEMO_PASSWORD = 'dhanraj123';
@@ -352,7 +352,11 @@ const remote = {
       const list = content?.[col] || [];
       for (let i = 0; i < list.length; i++) {
         const { data, sort, visible } = splitItem(list[i]);
-        for (const k of Object.keys(data)) data[k] = await dataUrlToStorage(data[k], col);
+        for (const k of Object.keys(data)) {
+          data[k] = Array.isArray(data[k])
+            ? await Promise.all(data[k].map((v) => dataUrlToStorage(v, col)))
+            : await dataUrlToStorage(data[k], col);
+        }
         rows.push({ collection: col, data, sort: sort ?? (i + 1) * 10, visible: visible ?? true });
       }
     }
