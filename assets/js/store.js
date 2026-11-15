@@ -13,8 +13,8 @@ export const COLLECTIONS = Object.keys(SEED);
 export const DEFAULT_SETTINGS = SEED_SETTINGS;
 
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/+esm';
-const LS_DATA = 'dg:data:v2';
-const LS_CACHE = 'dg:cache:v2';
+const LS_DATA = 'dg:data:v3';
+const LS_CACHE = 'dg:cache:v3';
 const LS_PW = 'dg:demo-pw';
 const SS_AUTH = 'dg:demo-auth';
 export const DEMO_PASSWORD = 'dhanraj123';

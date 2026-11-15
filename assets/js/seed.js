@@ -62,6 +62,9 @@ export const SETTINGS = {
   applications: ['Countertops', 'Flooring', 'Wall Cladding', 'Staircase', 'Exterior'],
   galleryCategories: ['Countertops', 'Flooring', 'Stair & Cladding', 'Exterior', 'Factory'],
   projectTypes: ['Residential', 'Commercial', 'Hospitality', 'Export / Trade', 'Other'],
+
+  // Every quote request is emailed to these addresses (first = main, others = copy).
+  notifyEmails: ['dhanrajstones@gmail.com', 'Nareshchoudhary17170@gmail.com'],
 };
 
 // Product photos live in assets/img/products/. Name and finish come from the
@@ -155,13 +158,13 @@ export const COLLECTIONS = {
   outlets: [
     { name: 'Universal Stone India P. Ltd', type: 'Manufacturing Unit',
       address: '30/2B & 37/2B, Sivaganga Main Rd, Poovanthi, Madurai, Tamil Nadu 630611',
-      phone: '+91 93925 37240', hours: 'Mon–Sun · 8:00 AM – 8:00 PM', mapsUrl: '' },
+      phone: '+91 93925 37240', hours: 'Mon–Sun · 8:00 AM – 8:00 PM', mapsUrl: 'https://share.google/J1f8RJgdVubgXhE44' },
     { name: 'Dhanraj Granite – Dahisar', type: 'Corporate Office',
       address: 'Shukla Compound, near Gokul Anand Hotel, Shailendra Nagar, Ganesh Nagar, Dahisar East, Mumbai, Maharashtra 400068',
-      phone: '+91 98201 20856', hours: 'Mon–Sun · 9:00 AM – 6:00 PM', mapsUrl: '' },
+      phone: '+91 98201 20856', hours: 'Mon–Sun · 9:00 AM – 6:00 PM', mapsUrl: 'https://share.google/2JuESbZNkOg1gSj5D' },
     { name: 'Dhanraj Granite – Mira Road', type: 'Warehouse',
       address: 'Mira Road East, Munshi Compound, National Highway, Kashimira Flyover, Ag Nagar, MIDC, Mira Bhayandar, Mumbai, Maharashtra 401107',
-      phone: '+91 98201 20856', hours: 'Mon–Sun · 9:00 AM – 6:00 PM', mapsUrl: '' },
+      phone: '+91 98201 20856', hours: 'Mon–Sun · 9:00 AM – 6:00 PM', mapsUrl: 'https://share.google/ciRpbQHpIR78GZPR7' },
   ],
 
   resources: [

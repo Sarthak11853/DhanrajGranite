@@ -5,6 +5,7 @@
 
 import { store, DEFAULT_SETTINGS, DEMO_PASSWORD } from './store.js';
 import { esc, safeUrl, icon, toast, lockScroll, fmtDate, waLink, digits } from './ui.js';
+import { emailInquiry, recipients } from './notify.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -110,6 +111,9 @@ const SETTINGS_GROUPS = [
     { k: 'instagram', label: 'Instagram link', type: 'url' },
     { k: 'facebook', label: 'Facebook link', type: 'url' },
     { k: 'logo', label: 'Logo', type: 'image', full: true, hint: 'Shown in the header and footer. A PNG with a transparent background looks best. Remove it to show a typed “DG Dhanraj Granite” logo instead.' },
+  ] },
+  { id: 'emails', title: 'Inquiry emails', note: 'Every quote request from the website is emailed to these addresses, one per line. The first is the main address; the others get a copy. After changing the first address, send a test from Account → Inquiry emails and click “Activate” in the email that arrives.', fields: [
+    { k: 'notifyEmails', label: 'Send inquiries to', type: 'lines', full: true, hint: 'Leave empty to stop emails (inquiries still appear in the Inquiries tab).' },
   ] },
   { id: 'home', title: 'Homepage', note: 'The first thing customers see.', fields: [
     { k: 'heroEyebrow', label: 'Small heading above title', full: true },
@@ -871,6 +875,15 @@ function viewAccount(v) {
     </section>
 
     <section class="set-card">
+      <h3>Inquiry emails</h3>
+      ${recipients(S).length ? `
+      <p>New quote requests are emailed to: <b>${recipients(S).map(esc).join(', ')}</b>. Change these in <a href="#settings" style="text-decoration:underline">Site &amp; About → Inquiry emails</a>.</p>
+      <p><b>First time only:</b> press the button below <u>on your live website</u>. An email titled “Activate Form” arrives at <b>${esc(recipients(S)[0])}</b> (check Spam/Promotions too) — open it and click <b>Activate Form</b>. Then press the button again: both addresses should receive a “[TEST] New quote request”.</p>`
+      : '<p>Email alerts are switched off. Add addresses in <a href="#settings" style="text-decoration:underline">Site &amp; About → Inquiry emails</a>.</p>'}
+      <button class="btn btn--sm" data-testmail ${recipients(S).length ? '' : 'disabled'}>${icon.mail} Send test email</button>
+    </section>
+
+    <section class="set-card">
       <h3>Change password</h3><p>${live ? 'Use at least 8 characters.' : 'Demo password for this browser.'}</p>
       <form id="pwForm" class="set-form" style="max-width:560px" novalidate>
         <div class="field field--full"><label for="pw0">Current password</label><input id="pw0" type="password" autocomplete="current-password" required></div>
@@ -969,6 +982,26 @@ document.addEventListener('click', async (e) => {
   if (f) { inqFilter = f.dataset.inqf; viewInquiries($('#view')); }
   if (e.target.closest('[data-refresh]')) { await viewInquiries($('#view')); toast('Up to date'); }
   if (e.target.closest('[data-csv]')) exportCsv();
+
+  const tm = e.target.closest('[data-testmail]');
+  if (tm) {
+    tm.disabled = true;
+    try {
+      await emailInquiry(S, {
+        name: 'Test Customer', phone: '+91 90000 00000', email: '', product: 'Ivory Fantasy (Polished)',
+        project_type: 'Residential', finish: 'Polished', sqft: '450', quantity: '6', location: 'Mumbai',
+        message: 'This is a test inquiry sent from the admin panel. You can ignore it.',
+      }, { test: true });
+      toast(`Test email sent to ${recipients(S).join(', ')}`);
+    } catch (ex) {
+      const msg = /activat/i.test(ex.message)
+        ? `Almost there: open the “Activate Form” email at ${recipients(S)[0]} and click Activate, then send the test again.`
+        : `Could not send: ${ex.message}`;
+      toast(msg, 'err');
+    } finally {
+      tm.disabled = false;
+    }
+  }
 
   if (e.target.closest('[data-export]')) {
     try {

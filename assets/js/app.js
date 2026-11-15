@@ -1,6 +1,7 @@
 // Dhanraj Granite — customer site (hash-routed single page app)
 
 import { store } from './store.js';
+import { emailInquiry } from './notify.js';
 import { esc, safeUrl, slug, waLink, mapsLink, icon, toast, lockScroll, logo, reducedMotion, debounce, digits } from './ui.js';
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -9,6 +10,7 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 let D = store.cached();
 let lastJson = D ? JSON.stringify(D) : '';
 let currentPath = null;
+let currentQuery = ''; // route params other than the product pop-up (p)
 
 const NAV = [
   ['', 'Home'], ['products', 'Products'], ['capabilities', 'Capabilities'], ['about', 'About'],
@@ -42,7 +44,10 @@ async function route({ soft = false } = {}) {
   const page = PAGES[path] || PAGES[''];
   const main = $('#app');
 
-  if (path === currentPath && !soft) { syncProductModal(params); return; }
+  const query = (() => { const q = new URLSearchParams(params); q.delete('p'); return q.toString(); })();
+  // Only the product pop-up changed: keep the page, just open/close the pop-up.
+  if (path === currentPath && query === currentQuery && !soft) { syncProductModal(params); return; }
+  currentQuery = query;
 
   const first = currentPath === null;
   const changingPage = path !== currentPath;
@@ -544,7 +549,7 @@ function outletCard(o, i) {
       ${o.phone ? `<li>${icon.phone}<a href="tel:${esc(digits(o.phone))}">${esc(o.phone)}</a></li>` : ''}
       ${o.hours ? `<li>${icon.clock}<span>${esc(o.hours)}</span></li>` : ''}
     </ul>
-    <a class="maps" href="${esc(mapsLink(o))}" target="_blank" rel="noopener">Open in maps ${icon.ext}</a>
+    <a class="maps" href="${esc(mapsLink(o))}" target="_blank" rel="noopener">Get directions ${icon.ext}</a>
   </article>`;
 }
 
@@ -627,7 +632,7 @@ function outletMini(o) {
     ${o.address ? `<li>${icon.pin}<span>${esc(o.address)}</span></li>` : ''}
     ${o.phone ? `<li>${icon.phone}<a href="tel:${esc(digits(o.phone))}">${esc(o.phone)}</a></li>` : ''}
     ${o.hours ? `<li>${icon.clock}<span>${esc(o.hours)}</span></li>` : ''}
-    <li>${icon.ext}<a href="${esc(mapsLink(o))}" target="_blank" rel="noopener" style="color:#8a6d2c">Open in Google Maps</a></li>
+    <li>${icon.ext}<a href="${esc(mapsLink(o))}" target="_blank" rel="noopener" style="color:#8a6d2c">Get directions on Google Maps</a></li>
   </ul>`;
 }
 
@@ -654,7 +659,14 @@ async function submitQuote(form) {
     finish: fd.finish, sqft: fd.sqft.trim(), quantity: fd.quantity.trim(), location: fd.location.trim(), message: fd.message.trim(),
   };
   try {
-    await store.submitInquiry(data);
+    // Save to the admin panel and email the team at the same time. The request
+    // counts as sent if either succeeds, so a hiccup in one never loses a lead.
+    const [saved, mailed] = await Promise.allSettled([store.submitInquiry(data), emailInquiry(D.settings, data)]);
+    if (mailed.status === 'rejected') console.warn('Inquiry email not sent:', mailed.reason);
+    if (saved.status === 'rejected') {
+      console.warn('Inquiry not saved:', saved.reason);
+      if (mailed.status === 'rejected' || mailed.value?.skipped) throw saved.reason;
+    }
     const summary = [`Hello ${D.settings.brand}, I just sent a quote request.`, `Name: ${data.name}`, data.product && `Product: ${data.product}`,
       data.finish && `Finish: ${data.finish}`, data.sqft && `Area: ${data.sqft} sq.ft`, data.location && `Location: ${data.location}`].filter(Boolean).join('\n');
     $('#formWrap').innerHTML = `
@@ -953,6 +965,8 @@ function bindGlobal() {
       if (/[?&]p=/.test(a.getAttribute('href'))) modal.pushed = true;
       if (a.getAttribute('href') === location.hash || (a.getAttribute('href') === '#/' && !location.hash)) {
         closeMenu();
+        // Already sent a quote? Show a fresh form again.
+        if ($('#formWrap .success')) { currentQuery = '\u0000'; route(); }
         window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
       }
     }

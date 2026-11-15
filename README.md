@@ -14,12 +14,14 @@
 5. [Quick answers: “How do I…?”](#5-quick-answers-how-do-i)
 6. [Taking good photos](#6-taking-good-photos)
 7. [Going live — one-time setup (database + publishing)](#7-going-live--one-time-setup)
-8. [Your own domain name (www.yourname.com)](#8-your-own-domain-name)
-9. [Changing things that are *not* in the Admin Panel](#9-changing-things-that-are-not-in-the-admin-panel)
-10. [Problems & solutions (FAQ)](#10-problems--solutions-faq)
-11. [Costs and limits](#11-costs-and-limits)
-12. [Keeping it safe](#12-keeping-it-safe)
-13. [For developers](#13-for-developers)
+8. [Where your details are saved in Supabase](#8-where-your-details-are-saved-in-supabase)
+9. [Inquiry emails](#9-inquiry-emails)
+10. [Your own domain name (www.yourname.com)](#10-your-own-domain-name)
+11. [Changing things that are *not* in the Admin Panel](#11-changing-things-that-are-not-in-the-admin-panel)
+12. [Problems & solutions (FAQ)](#12-problems--solutions-faq)
+13. [Costs and limits](#13-costs-and-limits)
+14. [Keeping it safe](#14-keeping-it-safe)
+15. [For developers](#15-for-developers)
 
 ---
 
@@ -93,7 +95,7 @@ Every list works the same way. Learn it once:
 
 ### 4.1 Inquiries (quote requests from customers)
 
-When a customer fills the **Request a quote** form, it appears here. The gold number on the tab shows how many are **new**.
+When a customer fills the **Request a quote** form, it appears here **and is emailed to you** (see [section 9](#9-inquiry-emails)). The gold number on the tab shows how many are **new**.
 
 - Tap a row to open full details (phone, email, product, finish, square feet, quantity, location, message).
 - Buttons inside: **WhatsApp** (opens a chat with a ready greeting), **Call**, **Email**.
@@ -140,6 +142,8 @@ Customer reviews shown on the home and About pages as a sliding carousel: Client
 
 Your locations on the **Outlets** page and the Contact page: Name, Type (Manufacturing Unit / Corporate Office / Warehouse / Showroom…), Phone, Address, Hours, Google Maps link.
 
+The **Google Maps link** powers the **Get directions** button on each location (already set for Universal Stone, Dahisar and Mira Road).
+
 *How to get a Google Maps link:* open Google Maps → find your shop → **Share** → **Copy link** → paste it. If left blank, the website searches the address on Google Maps automatically.
 
 ### 4.8 Resources
@@ -148,11 +152,12 @@ Helpful articles (care guides, comparisons). Title, Source (website name), Label
 
 ### 4.9 Site & About
 
-All the general text of the website, in five sections (tap a chip at the top to jump):
+All the general text of the website, in six sections (tap a chip at the top to jump):
 
 | Section | What you can change |
 | --- | --- |
 | **Business & contact** | Business name, year established, phone numbers, **WhatsApp number** (digits only with country code, e.g. `919392537240`), email, cities line, Instagram & Facebook links (icons appear in the footer when filled), **Logo** |
+| **Inquiry emails** | Email addresses that receive every quote request (one per line; first = main). See [section 9](#9-inquiry-emails) |
 | **Homepage** | The big title (3 parts: line 1, the gold italic word, and the rest), intro paragraph, **background image**, the 4 numbers (35+ Years…), collection heading, the “Ready to specify your project?” band, footer description |
 | **About page** | Title, Our story, Our essence, Our craft, About image |
 | **Factory specifications** | The boxes on the Capabilities page (Monthly capacity, Max slab size…). **+ Add row** / ✕ to remove |
@@ -164,6 +169,7 @@ When you change anything, a bar slides up at the bottom: **Save changes** or **U
 
 ### 4.10 Account
 
+- **Inquiry emails → Send test email** — sends a test inquiry email (also used once to activate emails, see [section 9](#9-inquiry-emails)).
 - **Change password** — enter current and new password (at least 8 characters).
 - **Download backup** — saves *all* website content (products, gallery, text…) as one file on your device. **Do this once a month and before big changes.** (Inquiries are not included — use *Export CSV* on the Inquiries tab.)
 - **Restore from file** — puts a backup back. Replaces current content.
@@ -189,9 +195,11 @@ When you change anything, a bar slides up at the bottom: **Save changes** or **U
 | Change the logo | **Site & About → Business & contact → Logo** |
 | Add a project photo | **Gallery → + Add image** |
 | Add a new shop/branch | **Outlets → + Add outlet** |
-| See who asked for a quote | **Inquiries** tab |
+| See who asked for a quote | **Inquiries** tab — and your email inbox |
+| Change who receives inquiry emails | **Site & About → Inquiry emails** |
+| Change a “Get directions” link | **Outlets** → edit → **Google Maps link** |
 | Download inquiries to Excel | **Inquiries → Export CSV** |
-| Give a staff member admin access | [Step 7.8](#78-add-another-admin-staff-member) |
+| Give a staff member admin access | [Step 7.9](#79-add-or-remove-another-admin-later) |
 | Make a backup | **Account → Download backup** |
 
 ---
@@ -210,112 +218,213 @@ The photos that came with the website are stored in the `assets/img/` folder (pr
 
 ## 7. Going live — one-time setup
 
-Until you do this, the site is in **demo mode** (changes only on your browser). This takes about **20–30 minutes, once**. You need: a computer, your email, and your GitHub login.
+Until you do this, the site is in **demo mode**: it works, but changes are saved only in your own browser and customers don’t see them. This setup takes about **30–40 minutes, once**.
 
-> Supabase’s menus sometimes get renamed slightly. If a button name doesn’t match exactly, look for the closest one.
+**You need:** a computer (a laptop is easier than a phone for this), your email, and your GitHub login. Keep this guide open in one tab and Supabase/GitHub in another.
+
+> Supabase sometimes renames buttons slightly. If a name doesn’t match exactly, look for the closest one — the order of steps stays the same.
+
+**Overview — what you will do**
+
+| Step | Where | Result |
+| --- | --- | --- |
+| 7.1 | GitHub | Website code on your `main` branch |
+| 7.2 | Supabase | A free database project in Mumbai |
+| 7.3 | Supabase → SQL Editor | Tables, security rules and photo folder created |
+| 7.4 | Supabase → Authentication | Your admin login created and approved |
+| 7.5 | Supabase → Project Settings + GitHub | Website connected to the database |
+| 7.6 | GitHub Pages or Netlify | Website online with a public address |
+| 7.7 | Supabase → URL Configuration | “Forgot password” emails work |
+| 7.8 | Admin Panel | Catalogue loaded, inquiry emails activated |
 
 ### 7.1 Put the website on your `main` branch
 
-The website was built on a separate branch. On GitHub:
-1. Open `https://github.com/Sarthak11853/DhanrajGranite`.
-2. If you see a yellow bar “*claude/… had recent pushes*”, click **Compare & pull request** → **Create pull request** → **Merge pull request** → **Confirm merge**.
-   (Or go to **Pull requests → New pull request**, choose the `claude/…` branch, then create and merge.)
+The website was built on a separate branch called `claude/brave-tesla-yado4k`. Copy it into `main`:
+
+1. Open `https://github.com/Sarthak11853/DhanrajGranite` and sign in.
+2. Click the **Pull requests** tab → green **New pull request** button.
+3. Set **base:** `main` and **compare:** `claude/brave-tesla-yado4k`.
+4. Click **Create pull request** → give it any title (e.g. “Website”) → **Create pull request** again.
+5. Click **Merge pull request** → **Confirm merge**. ✅ Done when you see a purple “Merged” label.
 
 ### 7.2 Create a free Supabase project
 
-1. Go to **[supabase.com](https://supabase.com)** → **Start your project** → sign up (using GitHub or email is easiest).
-2. Click **New project**.
-   - **Name:** `dhanraj-granite`
-   - **Database password:** click **Generate a password** and save it somewhere safe (you rarely need it).
-   - **Region:** choose **Mumbai (ap-south-1)** — fastest for India.
-   - Plan: **Free**.
-3. Click **Create new project** and wait 1–2 minutes until it’s ready.
+1. Go to **[supabase.com](https://supabase.com)** → click **Start your project**.
+2. Sign up. Easiest: **Continue with GitHub** (uses the same GitHub account). Or use email + password and confirm the email Supabase sends you.
+3. If asked to create an **organization**: Name `Dhanraj Granite`, Type *Company* or *Personal*, Plan **Free** → **Create organization**.
+4. Click **New project** and fill in:
+   - **Project name:** `dhanraj-granite`
+   - **Database password:** click **Generate a password**, then **copy it and save it** somewhere safe (notes app / password manager). You will rarely need it, but keep it.
+   - **Region:** **South Asia (Mumbai)** — fastest for Indian customers.
+   - Leave everything else as it is.
+5. Click **Create new project**. Wait 1–3 minutes while it says “Setting up project”.
+6. ✅ Done when you see the project dashboard with a left-side menu (Table Editor, SQL Editor, Authentication, Storage…).
 
 ### 7.3 Create the database tables (copy–paste once)
 
-1. On GitHub, open the file [`supabase/schema.sql`](supabase/schema.sql) → click the **Copy raw file** button (two-squares icon, top-right of the file).
-2. In Supabase, left menu → **SQL Editor** → **New query**.
-3. Paste (Ctrl+V / Cmd+V) → click **Run** (bottom-right). You should see “Success. No rows returned”.
-
-This creates: the content tables, the inquiries table, the security rules, and a public photo folder named `media`. Running it again later is harmless.
+1. In a new tab, open the file on GitHub: `supabase/schema.sql` (in your repository → folder **supabase** → **schema.sql**).
+2. Click the **Copy raw file** button (two overlapping squares, top-right of the file box). The whole file is now copied.
+3. In Supabase, left menu → **SQL Editor** (icon looks like `>_`).
+4. Click **+ New query** (or **New SQL snippet**). An empty editor opens.
+5. Click inside it and **paste** (Ctrl+V on Windows, Cmd+V on Mac).
+6. Click **Run** (bottom-right, or press Ctrl+Enter).
+   - If a warning appears about “destructive operations” or “this query may…”, click **Run this query** / **Confirm** — the file only *creates* things.
+7. ✅ You should see **“Success. No rows returned”**.
+8. Check: left menu → **Table Editor**. You should see **4 tables**: `admins`, `content`, `inquiries`, `settings`. Left menu → **Storage** → you should see a bucket named **`media`** marked *Public*.
 
 ### 7.4 Create your admin login
 
-1. Supabase left menu → **Authentication** → **Users** → **Add user** → **Create new user**.
-2. Enter **your email** and a **strong password**. Tick **Auto Confirm User**. Click **Create user**.
-3. Give that email admin rights: **SQL Editor → New query**, paste this (with *your* email), and **Run**:
+**a) Create the user**
+1. Left menu → **Authentication** → **Users**.
+2. Click **Add user** → **Create new user**.
+3. **Email:** your email (e.g. `dhanrajstones@gmail.com`). **Password:** a strong password you will remember (at least 8 characters, mix letters and numbers).
+4. ✅ Tick **Auto Confirm User** (so no confirmation email is needed).
+5. Click **Create user**. It appears in the list.
+
+**b) Give that email admin rights**
+1. Left menu → **SQL Editor** → **+ New query**.
+2. Paste this line, **replacing the email with the exact email you just used**:
    ```sql
-   insert into public.admins (email) values ('your-email@example.com');
+   insert into public.admins (email) values ('dhanrajstones@gmail.com');
    ```
-4. **Important:** **Authentication → Sign In / Providers** (or *Providers → Email*) → turn **OFF** “Allow new users to sign up” → **Save**. (Only people you add can log in.)
+3. Click **Run** → ✅ “Success. No rows returned”.
+4. Check: **Table Editor → admins** shows your email.
+
+To add a second admin (e.g. Naresh ji), repeat **a)** and **b)** with their email.
+
+**c) Stop strangers from creating accounts (important)**
+1. Left menu → **Authentication** → **Sign In / Providers** (in some versions: **Providers → Email** or **Settings**).
+2. Find **Allow new users to sign up** → switch it **OFF** → **Save**.
 
 ### 7.5 Connect the website to Supabase
 
-1. In Supabase: **Project Settings** (gear icon) → **Data API** (or **API**). Copy the **Project URL** (looks like `https://abcdefghijkl.supabase.co`).
-2. Then **Project Settings → API Keys**. Copy the **Publishable key** (starts with `sb_publishable_…`).
-   If you only see a “Legacy API keys” tab, copy the **anon public** key (starts with `eyJ…`). Either works.
-   ⚠️ **Never** use the *secret* / *service_role* key.
-3. On GitHub, open [`assets/js/config.js`](assets/js/config.js) → click the **✏️ pencil** (Edit this file).
-4. Paste your two values **between the quote marks**, so it looks like:
+**a) Copy two values from Supabase**
+1. Left menu → **Project Settings** (gear ⚙️ icon at the bottom).
+2. Open **Data API** (older versions: **API**). Copy the **Project URL** — it looks like `https://abcdefghijklmnop.supabase.co`. Paste it into a notes app for now.
+3. Open **API Keys**. Copy the **Publishable key** (starts with `sb_publishable_`).
+   - If you only see **anon** / **service_role** (a “Legacy API keys” tab), copy the **anon public** key (a long text starting with `eyJ`). Either works.
+   - ⚠️ **Never** copy the **secret** or **service_role** key into the website.
+
+**b) Paste them into the website (on GitHub)**
+1. On GitHub, open your repository → folder **assets** → **js** → **config.js**.
+2. Click the **✏️ pencil** icon (top-right of the file, “Edit this file”).
+3. Find these two lines near the bottom:
    ```js
-   export default {
-     supabaseUrl: 'https://abcdefghijkl.supabase.co',
-     supabaseAnonKey: 'sb_publishable_xxxxxxxxxxxxxxxxxxxx',
-   };
+   supabaseUrl: '',
+   supabaseAnonKey: '',
    ```
-   Keep the quote marks `'` and the commas.
-5. Click **Commit changes…** → keep “Commit directly to the main branch” → **Commit changes**.
+4. Put your values **between the two quote marks** so they look like:
+   ```js
+   supabaseUrl: 'https://abcdefghijklmnop.supabase.co',
+   supabaseAnonKey: 'sb_publishable_AbCdEf123...',
+   ```
+   Don’t delete the quote marks `'` or the commas `,`. No spaces inside the quotes.
+5. Click the green **Commit changes…** button → leave *“Commit directly to the main branch”* selected → **Commit changes**.
 
 ### 7.6 Publish the website (free)
 
 Pick **one** option.
 
-**Option A — GitHub Pages** (simplest; requires the repository to be **Public**, or a paid GitHub plan for private repos)
-1. On GitHub: repository → **Settings** → **Pages** (left menu).
-2. **Source:** *Deploy from a branch*. **Branch:** `main`, folder `/ (root)` → **Save**.
-3. Wait 1–3 minutes and refresh. A link appears: `https://sarthak11853.github.io/DhanrajGranite/`. That’s your website!
-4. Every time you edit a file on GitHub, the site updates by itself within a few minutes.
+**Option A — GitHub Pages** (simplest; the repository must be **Public**, unless you have a paid GitHub plan)
+1. Repository → **Settings** (top tabs) → **Pages** (left menu).
+2. Under **Build and deployment** → **Source:** *Deploy from a branch*.
+3. **Branch:** select `main` and folder `/ (root)` → **Save**.
+4. Wait 1–3 minutes, refresh the page. A box shows **“Your site is live at https://sarthak11853.github.io/DhanrajGranite/”**. Click **Visit site**.
+5. From now on, any change you commit on GitHub goes online by itself within a few minutes.
+
+*To make the repository public:* Settings → General → scroll to **Danger Zone** → **Change visibility** → Public. (The code becomes viewable by anyone; your data and passwords are in Supabase, not in the code.)
 
 **Option B — Netlify** (works with **private** repositories, free)
-1. Go to **[netlify.com](https://www.netlify.com)** → sign up with GitHub.
-2. **Add new site → Import an existing project → GitHub** → choose `DhanrajGranite`.
-3. **Branch:** `main`. **Build command:** leave empty. **Publish directory:** leave empty (or `/`). → **Deploy**.
-4. You get an address like `https://something.netlify.app` (you can rename it in *Site configuration → Change site name*). It updates automatically when GitHub changes.
-
-*(Cloudflare Pages and Vercel work the same way — no build command needed.)*
+1. Go to **[netlify.com](https://www.netlify.com)** → **Sign up** → **with GitHub**.
+2. **Add new site** → **Import an existing project** → **GitHub** → allow access → choose **DhanrajGranite**.
+3. **Branch to deploy:** `main`. **Build command:** leave **empty**. **Publish directory:** leave **empty**.
+4. Click **Deploy**. In ~1 minute you get an address like `https://random-name-123.netlify.app`.
+5. Rename it: **Site configuration** → **Change site name** → e.g. `dhanrajgranite` → `https://dhanrajgranite.netlify.app`.
 
 ### 7.7 Make “Forgot password” emails work
 
-Supabase → **Authentication → URL Configuration**:
-- **Site URL:** your website address, e.g. `https://sarthak11853.github.io/DhanrajGranite/`
-- **Redirect URLs → Add URL:** `https://sarthak11853.github.io/DhanrajGranite/admin.html` → **Save**.
+Supabase → **Authentication** → **URL Configuration**:
+1. **Site URL:** your website address, e.g. `https://sarthak11853.github.io/DhanrajGranite/` → **Save**.
+2. **Redirect URLs** → **Add URL** → `https://sarthak11853.github.io/DhanrajGranite/admin.html` → **Save**.
 
-(Use your Netlify or own-domain address instead if you use those.)
+(Use your Netlify address or own domain instead, if you use those.)
 
-### 7.8 Add another admin (staff member)
+### 7.8 First login, load the catalogue, activate emails
 
-1. Supabase → **Authentication → Users → Add user → Create new user** (their email + a password, tick *Auto Confirm*).
-2. **SQL Editor → New query**:
-   ```sql
-   insert into public.admins (email) values ('staff-email@example.com');
-   ```
-3. To **remove** someone’s access:
-   ```sql
-   delete from public.admins where email = 'staff-email@example.com';
-   ```
-   (Optionally also delete them in Authentication → Users.)
+1. Open `your-website-address/admin.html` (or tap **Admin** at the bottom of the website).
+2. Sign in with the **email and password from step 7.4**. ✅ The badge at the top now says **LIVE** (green dot).
+3. A banner says the database is empty → click **Load starter content** → **Load**. This copies all products, gallery photos, capabilities, outlets and text into your database.
+4. Open the customer website on your phone — everything is there. Change something in the admin, refresh the site: your change appears.
+5. **Activate inquiry emails** (see [section 9](#9-inquiry-emails)): **Account → Send test email** → open the “Activate Form” email in `dhanrajstones@gmail.com` → click **Activate Form** → press **Send test email** again → both inboxes receive a test.
+6. Send a real test from the website’s **Contact** page and check that it appears in **Inquiries** *and* in both email inboxes.
 
-### 7.9 First login & load the catalogue
+**Made changes in demo mode you want to keep?** *Before* step 7.5, open the admin in that same browser → **Account → Download backup**. After going live → **Account → Restore from file** → choose that file. Demo photos move into Supabase automatically.
 
-1. Open `your-website-address/admin.html` → sign in with your Supabase email & password. The badge now says **LIVE**.
-2. A banner says the database is empty → click **Load starter content**. This copies all the products, gallery, capabilities and text into your database.
-3. Done! Open the customer site on your phone — it shows everything. Edit something in the admin and refresh the site: it’s there.
+### 7.9 Add or remove another admin later
 
-**Did you make changes in demo mode that you want to keep?** *Before* step 7.5, open the admin in that same browser → **Account → Download backup**. After going live → **Account → Restore from file** → choose that file. Photos you uploaded in demo mode are moved into Supabase automatically.
+- **Add:** do step 7.4 a) and b) with their email.
+- **Remove:** SQL Editor → run
+  ```sql
+  delete from public.admins where email = 'their-email@example.com';
+  ```
+  and optionally delete them in **Authentication → Users** (⋯ menu → Delete user).
 
 ---
 
-## 8. Your own domain name
+## 8. Where your details are saved in Supabase
+
+Everything lives in **your own Supabase project** — open [supabase.com](https://supabase.com) → **Dashboard** → click **dhanraj-granite**. You normally never need to touch it (use the Admin Panel instead), but here is where each thing is:
+
+| What | Where in Supabase | How it looks |
+| --- | --- | --- |
+| **Products, Capabilities, Gallery, Milestones, Testimonials, Outlets, Resources** | **Table Editor → `content`** | One row per item. Column **`collection`** says which list it belongs to (`products`, `gallery`, …). Column **`data`** holds the details (name, finish, colour, photo link…). **`visible`** = shown on site or hidden. **`sort`** = order. |
+| **Site text & settings** (phone, WhatsApp, email list for inquiries, homepage text, About text, logo, filters…) | **Table Editor → `settings`** | A single row (id = 1); column **`data`** holds all values. |
+| **Customer inquiries** (quote requests) | **Table Editor → `inquiries`** | One row per request: date, status, name, phone, email, product, finish, sq.ft, quantity, location, message. |
+| **Who can use the Admin Panel** | **Table Editor → `admins`** | List of allowed emails. |
+| **Admin logins & passwords** | **Authentication → Users** | Emails of users. Passwords are stored encrypted — nobody (not even you) can read them; they can only be reset. |
+| **Photos you upload from the Admin Panel** | **Storage → `media`** | Folders such as `products/`, `gallery/`, `settings/`. Each photo has a public link used by the website. |
+| **Photos that came with the website** | Not in Supabase — in the GitHub repository folder **`assets/img/`** | — |
+
+**Handy things you can do in Supabase**
+- **Download inquiries as a spreadsheet:** Table Editor → `inquiries` → **Export** (or ⋯) → **Export to CSV**. (The Admin Panel’s *Export CSV* button does the same.)
+- **See database size / usage:** **Project Settings → Usage** (or the **Usage** page in the organization).
+- **Automatic backups:** the free plan doesn’t include downloadable daily backups — use **Admin → Account → Download backup** monthly.
+- ⚠️ Avoid editing or deleting rows directly in the Table Editor unless you know what you’re doing — use the Admin Panel.
+
+---
+
+## 9. Inquiry emails
+
+Every time a customer submits the **Request a quote** form, three things happen at once:
+1. It is saved in **Admin → Inquiries** (and in Supabase → `inquiries`).
+2. An **email** with all the details is sent to the addresses in **Admin → Site & About → Inquiry emails** — currently **dhanrajstones@gmail.com** (main) and **Nareshchoudhary17170@gmail.com** (copy).
+3. The customer sees a thank-you message with an optional “Also send on WhatsApp” button.
+
+You can simply **reply** to the email to answer the customer (if they entered their email).
+
+**How it works:** emails are sent by **FormSubmit** (formsubmit.co), a free service — no account, no password. Emails come from `FormSubmit` with the subject **“New quote request — *customer name* · *product*”**.
+
+**One-time activation (required)**
+1. After the website is online, open **Admin → Account → Inquiry emails** → **Send test email**.
+   *(Do this on the live website address, not on a test copy — FormSubmit links the activation to the website address.)*
+2. Within a minute, **dhanrajstones@gmail.com** receives an email from FormSubmit titled **“Action Required: Activate FormSubmit…”**. Check **Spam** and **Promotions** if you don’t see it.
+3. Open it and click **Activate Form**.
+4. Back in the admin, press **Send test email** again. ✅ Both addresses receive “[TEST] New quote request…”.
+5. In Gmail, if it landed in Spam, open it and click **Not spam** — and optionally create a filter (search `from:formsubmit` → *Create filter* → *Never send it to Spam*).
+
+**Change who gets emails:** Admin → **Site & About → Inquiry emails** → one email per line (first line = main address) → **Save changes**. If you change the **first** address, repeat the activation steps above for that new address. Leave the box empty to switch emails off.
+
+**Optional — hide the main address from spammers:** after activation, FormSubmit sends a second email with a random code (like `a1b2c3d4e5f6…`). Paste that code in place of the first email line. Emails keep going to the same inbox.
+
+**Good to know**
+- Emails work even before Supabase is connected — useful because in demo mode inquiries are only saved in the customer’s own browser.
+- If the email service is ever down, the inquiry is still saved in the Admin Panel (and vice-versa), so you never lose a lead.
+- FormSubmit is free; it’s meant for normal business volumes (dozens of inquiries a day is fine).
+- Email addresses listed here are part of the website’s public settings, so a determined bot could find them. Use the code trick above for the main address if spam becomes a problem.
+
+---
+
+## 10. Your own domain name
 
 1. Buy a domain (e.g. `dhanrajgranite.com`) from GoDaddy, Hostinger, Namecheap, Google/Squarespace Domains, etc.
 2. Connect it:
@@ -326,7 +435,7 @@ Supabase → **Authentication → URL Configuration**:
 
 ---
 
-## 9. Changing things that are *not* in the Admin Panel
+## 11. Changing things that are *not* in the Admin Panel
 
 A few fixed words and the design colours live in the code files. You can still change them from GitHub’s website — no software needed:
 
@@ -344,11 +453,11 @@ A few fixed words and the design colours live in the code files. You can still c
 | Tab icon / phone home-screen icon | replace `assets/img/brand/favicon.png` (64×64) and `apple-touch-icon.png` (180×180) | — |
 | Image shown when the link is shared on WhatsApp/Facebook | replace `assets/img/brand/share.jpg` (1200×630) | — |
 | Big hero background default | upload a new one in **Site & About → Homepage** (no code needed) | — |
-| Add a new editable field (e.g. *Price*) | see [section 13](#13-for-developers) | — |
+| Add a new editable field (e.g. *Price*) | see [section 15](#15-for-developers) | — |
 
 ---
 
-## 10. Problems & solutions (FAQ)
+## 12. Problems & solutions (FAQ)
 
 **My changes don’t show for customers.**
 - Check the badge in the admin: if it says **DEMO MODE**, Supabase isn’t connected yet → [section 7](#7-going-live--one-time-setup).
@@ -369,6 +478,12 @@ A few fixed words and the design colours live in the code files. You can still c
 
 **I deleted something by mistake.** Use **Account → Restore from file** with your latest backup. (This is why monthly backups matter.)
 
+**I’m not receiving inquiry emails.**
+- Did you complete the one-time **Activate Form** step? ([section 9](#9-inquiry-emails)) Press **Account → Send test email** — if activation is still needed, the admin tells you.
+- Check **Spam** / **Promotions** in Gmail and mark it **Not spam**.
+- Check the addresses in **Site & About → Inquiry emails** (one per line, no typos).
+- The inquiry is always also in **Admin → Inquiries**, so nothing is lost.
+
 **The quote form says “Could not send right now”.** Usually a temporary internet problem — the customer can use the WhatsApp button. If it keeps happening, check Supabase is not paused.
 
 **Two products have the same name.** That’s fine when the finish is different — each has its own link and card label (e.g. *Ivory Fantasy – Polished* and *– Leather*).
@@ -377,22 +492,23 @@ A few fixed words and the design colours live in the code files. You can still c
 
 ---
 
-## 11. Costs and limits
+## 13. Costs and limits
 
 | Service | Cost | Free limits (approx., check their pricing pages) |
 | --- | --- | --- |
 | GitHub (file storage) | Free | — |
 | GitHub Pages / Netlify (hosting) | Free | Plenty for a business site |
 | Supabase (database, photos, logins) | Free plan | ~500 MB database (thousands of products), ~1 GB photo storage (several thousand photos), monthly bandwidth limit; may pause after ~1 week of no activity |
+| FormSubmit (inquiry emails) | Free | Normal business volumes |
 | Own domain (optional) | ~₹800–₹1,500 / year | — |
 
 If you ever outgrow the free plan, Supabase’s paid plan can be enabled without changing the website.
 
 ---
 
-## 12. Keeping it safe
+## 14. Keeping it safe
 
-- Use a **strong admin password** and don’t share it. Give staff their **own** login (step 7.8) so you can remove access later.
+- Use a **strong admin password** and don’t share it. Give staff their **own** login (step 7.9) so you can remove access later.
 - Keep **“Allow new users to sign up”** turned **OFF** in Supabase.
 - The *publishable / anon* key in `config.js` is meant to be public — the database rules only allow admins to change anything, and customers can only *send* inquiries, never read them.
 - **Never** put the *secret / service_role* key or the database password in any website file.
@@ -400,7 +516,7 @@ If you ever outgrow the free plan, Supabase’s paid plan can be enabled without
 
 ---
 
-## 13. For developers
+## 15. For developers
 
 **Stack:** static HTML/CSS/vanilla JS (ES modules), no build step. Data layer: Supabase (Postgres + Storage + Auth + Realtime) via `@supabase/supabase-js` from jsDelivr; falls back to `localStorage` “demo mode” when `config.js` is empty.
 
@@ -422,6 +538,7 @@ assets/js/admin.js      admin SPA; SCHEMAS + SETTINGS_GROUPS define every editab
 assets/js/store.js      data layer (Supabase / demo), image compression, backup/restore
 assets/js/seed.js       starter content (also used by “Load starter content”)
 assets/js/ui.js         helpers: escaping, icons, toasts, logo
+assets/js/notify.js     inquiry email via FormSubmit (recipients from settings.notifyEmails)
 assets/img/             bundled photos: products/ gallery/ capabilities/ factory/ brand/
 supabase/schema.sql     tables, RLS policies, storage bucket, realtime publication
 ```
@@ -443,3 +560,5 @@ No database migration is needed (fields live in `data jsonb`).
 - Demo storage keys are versioned (`dg:data:v2`); bump to reseed demo browsers after changing `seed.js`.
 - Customer site caches the last public payload in `localStorage` for instant first paint, then revalidates and subscribes to Realtime changes.
 - Uploaded images are resized client-side to ≤1800 px JPEG before upload.
+- Inquiry submit runs `store.submitInquiry` and `emailInquiry` in parallel (`Promise.allSettled`); the customer sees success if either succeeds.
+- To send emails server-side instead (hiding recipients), add a Supabase Database Webhook on `inquiries` INSERT → Edge Function → an email API such as Resend, and clear `notifyEmails`.
