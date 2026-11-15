@@ -164,7 +164,7 @@ function testimonialsBlock(list) {
       <div class="section__head">
         <div>
           <span class="eyebrow" data-reveal>What clients say</span>
-          <h2 data-reveal style="--d:.08s">Why they come<br>back to Dhanraj.</h2>
+          <h2 data-reveal style="--d:.08s">Why do they come<br>back to Dhanraj.</h2>
         </div>
         ${list.length > 1 ? `<div class="quotes__nav" data-reveal>
           <button class="round" data-q="prev" aria-label="Previous testimonial">${icon.left}</button>
