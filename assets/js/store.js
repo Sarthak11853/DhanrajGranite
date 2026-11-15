@@ -19,7 +19,17 @@ const LS_PW = 'dg:demo-pw';
 const SS_AUTH = 'dg:demo-auth';
 export const DEMO_PASSWORD = 'dhanraj123';
 
-export const mode = config.supabaseUrl && config.supabaseAnonKey ? 'supabase' : 'demo';
+// Forgive common copy-paste slips: spaces, a trailing slash, or the API path
+// (".../rest/v1/") copied along with the Project URL. Only the origin is used.
+function cleanUrl(u) {
+  const s = String(u || '').trim();
+  if (!s) return '';
+  try { return new URL(s.startsWith('http') ? s : `https://${s}`).origin; } catch { return s; }
+}
+const SB_URL = cleanUrl(config.supabaseUrl);
+const SB_KEY = String(config.supabaseAnonKey || '').trim();
+
+export const mode = SB_URL && SB_KEY ? 'supabase' : 'demo';
 
 /* ------------------------------------------------------------------ utils */
 
@@ -241,7 +251,7 @@ const recoveryCbs = [];
 let recoveryPending = false;
 function sb() {
   sbPromise ||= import(SUPABASE_SDK).then(({ createClient }) => {
-    const c = createClient(config.supabaseUrl, config.supabaseAnonKey, {
+    const c = createClient(SB_URL, SB_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     });
     // Registered immediately so a password-reset link is never missed.
@@ -272,6 +282,12 @@ async function dataUrlToStorage(v, folder) {
   return uploadBlob(blob, folder);
 }
 
+function starterPublic() {
+  const out = { settings: mergeSettings({}) };
+  for (const col of COLLECTIONS) out[col] = SEED[col].map((d, i) => ({ ...d, id: `starter-${col}-${i}`, sort: (i + 1) * 10, visible: true }));
+  return out;
+}
+
 const remote = {
   async loadPublic() {
     const c = await sb();
@@ -279,9 +295,14 @@ const remote = {
       c.from('content').select('*').eq('visible', true).order('sort').order('created_at'),
       c.from('settings').select('data').eq('id', 1).maybeSingle(),
     ]);
-    const out = { settings: mergeSettings(check(settings)?.data) };
+    const settingsRow = check(settings);
+    const list = check(rows);
+    // Brand-new database (nothing loaded or saved from the admin yet): show the
+    // bundled starter catalogue so the live site never looks empty.
+    if (!settingsRow && !list.length) return starterPublic();
+    const out = { settings: mergeSettings(settingsRow?.data) };
     for (const col of COLLECTIONS) out[col] = [];
-    for (const r of check(rows)) if (out[r.collection]) out[r.collection].push(fromRow(r));
+    for (const r of list) if (out[r.collection]) out[r.collection].push(fromRow(r));
     return out;
   },
   async list(col) {
