@@ -233,7 +233,7 @@ Until you do this, the site is in **demo mode**: it works, but changes are saved
 | 7.3 | Supabase → SQL Editor | Tables, security rules and photo folder created |
 | 7.4 | Supabase → Authentication | Your admin login created and approved |
 | 7.5 | Supabase → Project Settings + GitHub | Website connected to the database |
-| 7.6 | GitHub Pages or Netlify | Website online with a public address |
+| 7.6 | GitHub Pages, Vercel or Netlify | Website online with a public address |
 | 7.7 | Supabase → URL Configuration | “Forgot password” emails work |
 | 7.8 | Admin Panel | Catalogue loaded, inquiry emails activated |
 
@@ -301,6 +301,7 @@ To add a second admin (e.g. Naresh ji), repeat **a)** and **b)** with their emai
 **a) Copy two values from Supabase**
 1. Left menu → **Project Settings** (gear ⚙️ icon at the bottom).
 2. Open **Data API** (older versions: **API**). Copy the **Project URL** — it looks like `https://abcdefghijklmnop.supabase.co`. Paste it into a notes app for now.
+   ⚠️ Use **only** the part up to `.supabase.co`. Do **not** copy a longer address such as `https://abcdefghijklmnop.supabase.co/rest/v1/` (the “RESTful endpoint”). *(The website now trims this automatically, but it’s cleaner without it.)*
 3. Open **API Keys**. Copy the **Publishable key** (starts with `sb_publishable_`).
    - If you only see **anon** / **service_role** (a “Legacy API keys” tab), copy the **anon public** key (a long text starting with `eyJ`). Either works.
    - ⚠️ **Never** copy the **secret** or **service_role** key into the website.
@@ -333,6 +334,14 @@ Pick **one** option.
 5. From now on, any change you commit on GitHub goes online by itself within a few minutes.
 
 *To make the repository public:* Settings → General → scroll to **Danger Zone** → **Change visibility** → Public. (The code becomes viewable by anyone; your data and passwords are in Supabase, not in the code.)
+
+**Option C — Vercel** (works with **private** repositories, free)
+1. Go to **[vercel.com](https://vercel.com)** → **Sign Up** → **Continue with GitHub**.
+2. **Add New… → Project** → find **DhanrajGranite** → **Import**.
+3. **Framework Preset:** **Other**. Open **Build and Output Settings** and leave **Build Command**, **Output Directory** and **Install Command** empty (switch the *Override* toggles off). **Root Directory:** `./`.
+4. Click **Deploy**. In under a minute you get an address like `https://dhanraj-granite.vercel.app`.
+5. Every commit to `main` on GitHub redeploys automatically (watch **Deployments** in Vercel). If you need to force it: **Deployments** → ⋯ on the latest → **Redeploy**.
+6. Own domain: **Settings → Domains → Add**.
 
 **Option B — Netlify** (works with **private** repositories, free)
 1. Go to **[netlify.com](https://www.netlify.com)** → **Sign up** → **with GitHub**.
@@ -474,7 +483,11 @@ A few fixed words and the design colours live in the code files. You can still c
 
 **Photo upload fails.** Make sure it’s an image file (JPG/PNG), under 10 MB, and you’re signed in. Try again on Wi-Fi.
 
-**The website shows “We’ll be right back.”** The database couldn’t be reached. Check your internet. On the free plan, Supabase may **pause a project after about a week with no activity** — log in to supabase.com, open the project, and click **Restore project**. Visitors using the site keep it active.
+**The website shows “We’ll be right back.”** The database couldn’t be reached. Check these in order:
+1. **`assets/js/config.js`** — the URL must be exactly `https://<your-project>.supabase.co` (nothing after `.co`), and the key must be the **publishable** (`sb_publishable_…`) or **anon** key, inside quote marks.
+2. The SQL in step 7.3 was run (Supabase → Table Editor shows `content`, `settings`, `inquiries`, `admins`).
+3. Your hosting picked up the latest commit (Vercel/Netlify → **Deployments** shows the newest one as *Ready*), then refresh the site with **Ctrl+Shift+R**.
+4. Check your internet. On the free plan, Supabase may **pause a project after about a week with no activity** — log in to supabase.com, open the project, and click **Restore project**. Visitors using the site keep it active.
 
 **I deleted something by mistake.** Use **Account → Restore from file** with your latest backup. (This is why monthly backups matter.)
 

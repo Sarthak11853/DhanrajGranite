@@ -18,6 +18,6 @@
  *   supabaseUrl: 'https://abcdefghijkl.supabase.co',
  */
 export default {
-  supabaseUrl: 'https://hjwdwohyipevywgqyqda.supabase.co/rest/v1/',
+  supabaseUrl: 'https://hjwdwohyipevywgqyqda.supabase.co',
   supabaseAnonKey: 'sb_publishable_23qW5GVRfqUHX0KOGcP4ig_wmwch3Wf',
 };
