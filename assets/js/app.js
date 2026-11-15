@@ -308,7 +308,7 @@ function pageProducts(d) {
     </div></div>`;
   };
   return `
-  ${pageHead('Catalogue', 'Granite', 'slabs & tiles.', 'Browse our collection by colour family, finish, and application. Request a quote or enquire on WhatsApp for any product.')}
+  ${pageHead('Catalogue', 'Granite', 'slabs & tiles.', 'Browse our collection by colour, finish, and application. Request a quote or enquire on WhatsApp for any product.')}
   <section class="section section--tight">
     <div class="container">
       <div class="tools">
